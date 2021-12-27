@@ -2,13 +2,21 @@
 declare module 'dom-maker' {
   interface ElementPro<E extends HTMLElement = HTMLElement> {
     getElm: () => E
-    addClass: (cls: string | string[]) => ElementPro
-    removeClass: (cls: string | string[]) => ElementPro
+    isElmPro: (element: HTMLElement | ElementPro) => boolean
+    addClass: (cls: string | string[]) => this
+    removeClass: (cls: string | string[]) => this
     hasClass: (cls: string) => boolean
-    toggleClass: (cls: string) => ElementPro
-    addAttr: <T>(key: string, value: T) => ElementPro
-    // addAttr: <T>({ key: string, value: T }[]) => ElementPro
-
+    toggleClass: (cls: string) => this
+    setAttr: <T extends (number | string | boolean) >(key: string, value: T) => this
+    // setAttr: <T>(kvMaps: {}[]) => this
+    removeAttr: (key: string | string[]) => this
+    addChildren: (elements: (HTMLElement | ElementPro)[]) => this
+    on: (type: string, listener: EventListenerOrEventListenerObject, options?: boolean | AddEventListenerOptions) => this
+    unbind: (type?: string | string[]) => this
+    dispatch: (type: string, detail?: CustomEventInit, options?: Omit<CustomEventInit, 'detail'>) => this
+    setText: (text: string) => this
+    setHtml: (html: string) => this
+    appendTo: (selectors: string) => this
   }
 }
 
@@ -18,11 +26,11 @@ export class ElementPro<E extends HTMLElement = HTMLElement>  {
    */
   private element: E = null
   /**
-   * cache events to help manage and enable removing them easily
+   * cache events to manage and remove them easily
    */
   private eventsRegistry: Map<string, EventListenerOrEventListenerObject> = new Map()
 
-  constructor(tagName: string = 'div') {
+  constructor(tagName: (keyof HTMLElementTagNameMap | string & {}) = 'div') {
     this.element = document.createElement(tagName) as E
   }
 
@@ -102,7 +110,7 @@ export class ElementPro<E extends HTMLElement = HTMLElement>  {
    * @param {number | string | boolean} value
    * @returns {ElementPro}
    */
-  addAttr<T extends (number | string | boolean)>(key: string, value: T): ElementPro {
+  setAttr<T extends (number | string | boolean)>(key: string, value: T): ElementPro {
     if (typeof value.toString === 'function') {
       this.element.setAttribute(key, value.toString())
     } else {
@@ -196,6 +204,36 @@ export class ElementPro<E extends HTMLElement = HTMLElement>  {
   dispatch(type: string, detail?: CustomEventInit, options?: Omit<CustomEventInit, 'detail'>): this {
     this.element.dispatchEvent(new CustomEvent(type, Object.assign({}, { detail }, options || {})));
     return this
+  }
+
+  /**
+   * set current element innerText
+   *
+   * @param {(string} text
+   * @returns {ElementPro}
+   */
+  setText(text: string): this {
+    this.element.innerText = text
+    return this
+  }
+
+  /**
+   * set current element innerHtml
+   *
+   * @param {(string} html
+   * @returns {ElementPro}
+   */
+  setHtml(html: string): this {
+    this.element.innerText = html
+    return this
+  }
+
+  /**
+   * append current element to target element
+   */
+  appendTo(selectors: string) {
+    const target = document.querySelector(selectors) || document.body
+    target.appendChild(this.element)
   }
 }
 
