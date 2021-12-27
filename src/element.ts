@@ -1,30 +1,8 @@
-
-declare module 'dom-maker' {
-  interface ElementPro<E extends HTMLElement = HTMLElement> {
-    getElm: () => E
-    isElmPro: (element: HTMLElement | ElementPro) => boolean
-    addClass: (cls: string | string[]) => this
-    removeClass: (cls: string | string[]) => this
-    hasClass: (cls: string) => boolean
-    toggleClass: (cls: string) => this
-    setAttr: <T extends (number | string | boolean) >(key: string, value: T) => this
-    // setAttr: <T>(kvMaps: {}[]) => this
-    removeAttr: (key: string | string[]) => this
-    addChildren: (elements: (HTMLElement | ElementPro)[]) => this
-    on: (type: string, listener: EventListenerOrEventListenerObject, options?: boolean | AddEventListenerOptions) => this
-    unbind: (type?: string | string[]) => this
-    dispatch: (type: string, detail?: CustomEventInit, options?: Omit<CustomEventInit, 'detail'>) => this
-    setText: (text: string) => this
-    setHtml: (html: string) => this
-    appendTo: (selectors: string) => this
-  }
-}
-
-export class ElementPro<E extends HTMLElement = HTMLElement>  {
+export class ElementPlus<E extends HTMLElement = HTMLElement>  {
   /**
    * current element
    */
-  private element: E = null
+  private element: E = null!
   /**
    * cache events to manage and remove them easily
    */
@@ -44,26 +22,26 @@ export class ElementPro<E extends HTMLElement = HTMLElement>  {
   }
 
   /**
-   * check current element is ElementPro
+   * check current element is ElementPlus
    *
-   * @param {(HTMLElement|ElementPro)} element
+   * @param {(HTMLElement|ElementPlus)} element
    * @returns {boolean}
    */
-  isElmPro(element: HTMLElement | ElementPro): element is ElementPro {
-    return element instanceof ElementPro
+  isElmPro(element: HTMLElement | ElementPlus): element is ElementPlus {
+    return element instanceof ElementPlus
   }
 
   /**
    * add multiple classes to element
    *
    * @param {(string|string[])} cls
-   * @returns {ElementPro}
+   * @returns {ElementPlus}
    */
   addClass(cls: string | string[]): this {
     if (Array.isArray(cls)) {
-      cls.forEach((c) => this.element.classList.add(c.trim()));
+      cls.forEach((c) => this.element.classList.add(c.trim()))
     } else if (typeof cls !== 'undefined' && cls.trim().length > 0) {
-      cls.split(' ').forEach((c) => this.element.classList.add(c.trim()));
+      cls.split(' ').forEach((c) => this.element.classList.add(c.trim()))
     }
     return this
   }
@@ -72,13 +50,13 @@ export class ElementPro<E extends HTMLElement = HTMLElement>  {
    * remove multiple classes from element
    *
    * @param {string|string[]} cls
-   * @returns {ElementPro}
+   * @returns {ElementPlus}
    */
   removeClass(cls: string | string[]): this {
     if (Array.isArray(cls)) {
-      cls.forEach((c) => this.element.classList.remove(c.trim()));
+      cls.forEach((c) => this.element.classList.remove(c.trim()))
     } else if (typeof cls !== 'undefined' && cls.trim().length > 0) {
-      cls.split(' ').forEach((c) => this.element.classList.remove(c.trim()));
+      cls.split(' ').forEach((c) => this.element.classList.remove(c.trim()))
     }
     return this
   }
@@ -97,10 +75,10 @@ export class ElementPro<E extends HTMLElement = HTMLElement>  {
    * toggle element classes
    *
    * @param {string} cls
-   * @returns {ElementPro}
+   * @returns {ElementPlus}
    */
   toggleClass(cls: string): this {
-    return this.hasClass(cls) ? this.removeClass(cls) : this.addClass(cls);
+    return this.hasClass(cls) ? this.removeClass(cls) : this.addClass(cls)
   }
 
   /**
@@ -108,9 +86,9 @@ export class ElementPro<E extends HTMLElement = HTMLElement>  {
    *
    * @param {string} key
    * @param {number | string | boolean} value
-   * @returns {ElementPro}
+   * @returns {ElementPlus}
    */
-  setAttr<T extends (number | string | boolean)>(key: string, value: T): ElementPro {
+  setAttr<T extends (number | string | boolean)>(key: string, value: T): ElementPlus {
     if (typeof value.toString === 'function') {
       this.element.setAttribute(key, value.toString())
     } else {
@@ -123,7 +101,7 @@ export class ElementPro<E extends HTMLElement = HTMLElement>  {
    * remove multiple attributes from element
    *
    * @param {string|string[]} key
-   * @returns {ElementPro}
+   * @returns {ElementPlus}
    */
   removeAttr(key: string | string[]): this {
     if (Array.isArray(key)) {
@@ -137,10 +115,10 @@ export class ElementPro<E extends HTMLElement = HTMLElement>  {
   /**
    * add multiple children to current element
    *
-   * @param {(HTMLElement|ElementPro)[]} elements
-   * @returns {ElementPro}
+   * @param {(HTMLElement|ElementPlus)[]} elements
+   * @returns {ElementPlus}
    */
-  addChildren(elements: (HTMLElement | ElementPro)[]): this {
+  addChildren(elements: (HTMLElement | ElementPlus)[]): this {
     if (Array.isArray(elements)) {
       (elements).filter(Boolean).forEach(element => {
         if (this.isElmPro(element)) {
@@ -159,7 +137,7 @@ export class ElementPro<E extends HTMLElement = HTMLElement>  {
    * @param {(string} type
    * @param {EventListenerOrEventListenerObject} listener
    * @param {boolean | AddEventListenerOptions} options
-   * @returns {ElementPro}
+   * @returns {ElementPlus}
    */
   on(type: string, listener: EventListenerOrEventListenerObject, options?: boolean | AddEventListenerOptions): this {
     if (!this.eventsRegistry.has(type)) {
@@ -173,7 +151,7 @@ export class ElementPro<E extends HTMLElement = HTMLElement>  {
    * remove event listener from current element
    *
    * @param {(string|string[]|undefined} type
-   * @returns {ElementPro}
+   * @returns {ElementPlus}
    */
   unbind(type?: string | string[]): this {
     if (type === undefined) {
@@ -183,12 +161,18 @@ export class ElementPro<E extends HTMLElement = HTMLElement>  {
       this.eventsRegistry.clear()
     } else if (Array.isArray(type)) {
       type.forEach(t => {
-        this.element.removeEventListener(t, this.eventsRegistry.get(t))
-        this.eventsRegistry.delete(t)
+        const handler = this.eventsRegistry.get(t)
+        if (handler) {
+          this.element.removeEventListener(t, handler)
+          this.eventsRegistry.delete(t)
+        }
       })
     } else {
-      this.element.removeEventListener(type, this.eventsRegistry.get(type))
-      this.eventsRegistry.delete(type)
+      const handler = this.eventsRegistry.get(type)
+      if (handler) {
+        this.element.removeEventListener(type, handler)
+        this.eventsRegistry.delete(type)
+      }
     }
     return this
   }
@@ -199,10 +183,10 @@ export class ElementPro<E extends HTMLElement = HTMLElement>  {
    * @param {(string} type
    * @param {Record<string,any>} detail
    * @param {Omit<CustomEventInit,'detail'>} options
-   * @returns {ElementPro}
+   * @returns {ElementPlus}
    */
   dispatch(type: string, detail?: CustomEventInit, options?: Omit<CustomEventInit, 'detail'>): this {
-    this.element.dispatchEvent(new CustomEvent(type, Object.assign({}, { detail }, options || {})));
+    this.element.dispatchEvent(new CustomEvent(type, Object.assign({}, { detail }, options || {})))
     return this
   }
 
@@ -210,7 +194,7 @@ export class ElementPro<E extends HTMLElement = HTMLElement>  {
    * set current element innerText
    *
    * @param {(string} text
-   * @returns {ElementPro}
+   * @returns {ElementPlus}
    */
   setText(text: string): this {
     this.element.innerText = text
@@ -221,7 +205,7 @@ export class ElementPro<E extends HTMLElement = HTMLElement>  {
    * set current element innerHtml
    *
    * @param {(string} html
-   * @returns {ElementPro}
+   * @returns {ElementPlus}
    */
   setHtml(html: string): this {
     this.element.innerText = html
@@ -237,8 +221,9 @@ export class ElementPro<E extends HTMLElement = HTMLElement>  {
   }
 }
 
-export const Div = () => new ElementPro<HTMLDivElement>('div')
-export const Span = () => new ElementPro<HTMLSpanElement>('span')
-export const Img = () => new ElementPro<HTMLImageElement>('img')
-export const Video = () => new ElementPro<HTMLVideoElement>('video')
-export const Input = () => new ElementPro<HTMLInputElement>('input')
+export const Div = () => new ElementPlus<HTMLDivElement>('div')
+export const Span = () => new ElementPlus<HTMLSpanElement>('span')
+export const Img = () => new ElementPlus<HTMLImageElement>('img')
+export const Video = () => new ElementPlus<HTMLVideoElement>('video')
+export const Input = () => new ElementPlus<HTMLInputElement>('input')
+export const Button = () => new ElementPlus<HTMLButtonElement>('button')

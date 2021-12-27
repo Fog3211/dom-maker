@@ -1,7 +1,5 @@
-import { ElementPro } from './element'
+import { ElementPlus } from './element'
 
-export {
-  ElementPro
-}
+export * from './element'
 
-export default ElementPro
+export default ElementPlus
