@@ -208,7 +208,7 @@ export class ElementPlus<E extends HTMLElement = HTMLElement>  {
    * @returns {ElementPlus}
    */
   setHtml(html: string): this {
-    this.element.innerText = html
+    this.element.innerHTML = html
     return this
   }
 
