@@ -1,3 +1,9 @@
+const NS_MAP = {
+  'HTML': 'http://www.w3.org/1999/xhtml',
+  'SVG': 'http://www.w3.org/2000/svg',
+  'XBL': 'http://www.mozilla.org/xbl',
+  'XUL': 'http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul',
+}
 export class ElementPlus<E extends HTMLElement = HTMLElement>  {
   /**
    * current element
@@ -8,8 +14,11 @@ export class ElementPlus<E extends HTMLElement = HTMLElement>  {
    */
   private eventsRegistry: Map<string, EventListenerOrEventListenerObject> = new Map()
 
-  constructor(tagName: (keyof HTMLElementTagNameMap | string & {}) = 'div') {
-    this.element = document.createElement(tagName) as E
+  constructor(
+    tagName: (keyof HTMLElementTagNameMap | string & {}) = 'div',
+    nameSpace?: keyof typeof NS_MAP
+  ) {
+    this.element = document.createElementNS(NS_MAP[nameSpace || 'HTML'], tagName) as E
   }
 
   /**
@@ -220,6 +229,7 @@ export class ElementPlus<E extends HTMLElement = HTMLElement>  {
     target.appendChild(this.element)
   }
 }
+
 
 export const Div = () => new ElementPlus<HTMLDivElement>('div')
 export const Span = () => new ElementPlus<HTMLSpanElement>('span')
