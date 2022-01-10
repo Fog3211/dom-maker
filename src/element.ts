@@ -4,6 +4,7 @@ const NS_MAP = {
   'XBL': 'http://www.mozilla.org/xbl',
   'XUL': 'http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul',
 }
+
 export class ElementPlus<E extends HTMLElement = HTMLElement>  {
   /**
    * current element
@@ -98,7 +99,7 @@ export class ElementPlus<E extends HTMLElement = HTMLElement>  {
    * @returns {ElementPlus}
    */
   setAttr<T extends (number | string | boolean)>(key: string, value: T): ElementPlus {
-    if (typeof value.toString === 'function') {
+    if (value && typeof value.toString === 'function') {
       this.element.setAttribute(key, value.toString())
     } else {
       this.element.setAttribute(key, '')
@@ -148,7 +149,7 @@ export class ElementPlus<E extends HTMLElement = HTMLElement>  {
    * @param {boolean | AddEventListenerOptions} options
    * @returns {ElementPlus}
    */
-  on(type: string, listener: EventListenerOrEventListenerObject, options?: boolean | AddEventListenerOptions): this {
+  on(type: 'click' | string & {}, listener: EventListenerOrEventListenerObject, options?: boolean | AddEventListenerOptions): this {
     if (!this.eventsRegistry.has(type)) {
       this.element.addEventListener(type, listener, options)
       this.eventsRegistry.set(type, listener)
@@ -211,6 +212,18 @@ export class ElementPlus<E extends HTMLElement = HTMLElement>  {
   }
 
   /**
+   * append innerHTML after current element
+   *
+   * @param {(string} text
+   * @returns {ElementPlus}
+   */
+  addInnerHtml(text: string, pos?: 'before' | 'after'): this {
+    if (pos === 'after') this.element.innerHTML += text
+    else this.element.innerHTML = text + this.element.innerHTML
+    return this
+  }
+
+  /**
    * set current element innerHtml
    *
    * @param {(string} html
@@ -229,7 +242,6 @@ export class ElementPlus<E extends HTMLElement = HTMLElement>  {
     target.appendChild(this.element)
   }
 }
-
 
 export const Div = () => new ElementPlus<HTMLDivElement>('div')
 export const Span = () => new ElementPlus<HTMLSpanElement>('span')

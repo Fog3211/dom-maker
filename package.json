@@ -1,6 +1,6 @@
 {
   "name": "dom-maker",
-  "version": "0.0.6",
+  "version": "0.0.7",
   "description": "A library for create element by VanillaJs easily",
   "main": "dist/index.js",
   "typings": "dist/index.d.ts",
