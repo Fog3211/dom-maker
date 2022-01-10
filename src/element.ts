@@ -149,7 +149,7 @@ export class ElementPlus<E extends HTMLElement = HTMLElement>  {
    * @param {boolean | AddEventListenerOptions} options
    * @returns {ElementPlus}
    */
-  on(type: 'click' | string & {}, listener: EventListenerOrEventListenerObject, options?: boolean | AddEventListenerOptions): this {
+  on(type: keyof DocumentEventMap | string & {}, listener: EventListenerOrEventListenerObject, options?: boolean | AddEventListenerOptions): this {
     if (!this.eventsRegistry.has(type)) {
       this.element.addEventListener(type, listener, options)
       this.eventsRegistry.set(type, listener)
@@ -249,3 +249,10 @@ export const Img = () => new ElementPlus<HTMLImageElement>('img')
 export const Video = () => new ElementPlus<HTMLVideoElement>('video')
 export const Input = () => new ElementPlus<HTMLInputElement>('input')
 export const Button = () => new ElementPlus<HTMLButtonElement>('button')
+
+const $ = <E extends HTMLElement>(
+  tagName: (keyof HTMLElementTagNameMap | string & {}),
+  nameSpace?: keyof typeof NS_MAP
+) => new ElementPlus<E>(tagName, nameSpace)
+
+export default $

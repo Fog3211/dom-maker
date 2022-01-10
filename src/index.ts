@@ -1,5 +1,5 @@
-import { ElementPlus } from './element'
+import $ from './element'
 
 export * from './element'
 
-export default ElementPlus
+export default $
